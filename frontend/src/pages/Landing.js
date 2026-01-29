@@ -138,7 +138,7 @@ export default function Landing() {
                             The Anti-Block Creative Assistant
                         </p>
                         <h1 className="font-serif text-5xl md:text-7xl font-light tracking-tight leading-[0.9] mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                            Stuck? Let's <span className="text-gradient">Ideæ</span> something creative.
+                            Out of ideas? <span className="text-gradient">We've got you.</span>
                         </h1>
                         <p className="font-sans text-base md:text-lg leading-relaxed text-muted-foreground max-w-xl mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
                             Not for everyday questions. For when you need real creative help — 

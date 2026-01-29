@@ -1,0 +1,177 @@
+{
+  "identity": {
+    "name": "Spark - The Anti-Block Creative Assistant",
+    "persona": "E1 - The Anti-AI Designer",
+    "tone": "Inspiring, Unblocking, Playful, Safe, Tactile",
+    "principles": [
+      "Fusion over Imitation",
+      "Emotion First",
+      "Content is King",
+      "Zoom In",
+      "Negative Space",
+      "Contrast"
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Fraunces, serif",
+      "body": "Outfit, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "google_fonts_import": "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+    "usage": {
+      "h1": "font-serif text-5xl md:text-7xl font-light tracking-tight leading-[0.9]",
+      "h2": "font-serif text-3xl md:text-5xl font-normal tracking-tight",
+      "h3": "font-serif text-2xl md:text-3xl font-medium",
+      "body": "font-sans text-base md:text-lg leading-relaxed text-muted-foreground",
+      "label": "font-sans text-xs font-bold uppercase tracking-widest text-muted-foreground/80",
+      "button": "font-sans font-medium tracking-wide"
+    }
+  },
+  "colors": {
+    "theme_strategy": "Archetype 3 (Pastel & Soft) + Archetype 5 (Jewel & Luxury)",
+    "light_mode": {
+      "background": "#FDFBF7",
+      "foreground": "#1A1A1A",
+      "card": "#FFFFFF",
+      "card_foreground": "#1A1A1A",
+      "primary": "#1A1A1A",
+      "primary_foreground": "#FDFBF7",
+      "secondary": "#F2EFE9",
+      "secondary_foreground": "#1A1A1A",
+      "muted": "#F2EFE9",
+      "muted_foreground": "#66605B",
+      "accent": "#E0DCD5",
+      "accent_foreground": "#1A1A1A",
+      "border": "#E6E1D6",
+      "input": "#E6E1D6",
+      "ring": "#1A1A1A"
+    },
+    "dark_mode": {
+      "background": "#0A0A0A",
+      "foreground": "#EDEDED",
+      "card": "#121212",
+      "card_foreground": "#EDEDED",
+      "primary": "#EDEDED",
+      "primary_foreground": "#0A0A0A",
+      "secondary": "#1F1F1F",
+      "secondary_foreground": "#EDEDED",
+      "muted": "#1F1F1F",
+      "muted_foreground": "#A1A1AA",
+      "accent": "#2A2A2A",
+      "accent_foreground": "#EDEDED",
+      "border": "#2A2A2A",
+      "input": "#2A2A2A",
+      "ring": "#EDEDED"
+    },
+    "accents": {
+      "spark_yellow": "#FFD60A",
+      "electric_purple": "#BF5AF2",
+      "sunset_orange": "#FF9F0A",
+      "teal_blue": "#30B0C7"
+    }
+  },
+  "layout": {
+    "spacing_scale": "p-1, p-2, p-4, p-6, p-8, p-12, p-16, p-20, p-24, p-32",
+    "container_padding": "px-6 md:px-12 lg:px-24",
+    "grid_strategy": "Bento Grid (Mode A: Tetris)",
+    "border_radius": {
+      "default": "rounded-xl",
+      "card": "rounded-2xl",
+      "button": "rounded-full"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground hover:opacity-90 h-12 px-8 rounded-full transition-transform hover:scale-105 active:scale-95 shadow-lg",
+      "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80 h-12 px-8 rounded-full",
+      "ghost": "hover:bg-accent hover:text-accent-foreground h-10 px-4 rounded-full"
+    },
+    "cards": {
+      "base": "bg-card text-card-foreground border border-border/50 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1",
+      "interactive": "cursor-pointer group relative overflow-hidden"
+    },
+    "inputs": {
+      "base": "h-12 bg-transparent border-b-2 border-input focus:border-primary focus:ring-0 rounded-none px-0 transition-colors placeholder:text-muted-foreground/50"
+    }
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-xl bg-white/70 dark:bg-black/60 border border-white/20 shadow-sm",
+    "gradients": "No full-screen gradients. Use subtle mesh gradients in hero backgrounds.",
+    "texture": "Add a subtle noise texture overlay (opacity 0.03) to the entire body to create a paper feel.",
+    "shadows": "shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]"
+  },
+  "motion": {
+    "transitions": "transition-all duration-300 ease-out",
+    "hover_lift": "hover:-translate-y-1",
+    "page_transition": "initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}"
+  },
+  "image_urls": {
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1764922981561-c2ce524178f6",
+      "alt": "Abstract swirling light trails representing creative spark",
+      "category": "hero"
+    },
+    "categories": [
+      {
+        "name": "Writing Prompts",
+        "url": "https://images.unsplash.com/photo-1767547109500-db6a9d411ae9",
+        "alt": "Minimalist fountain pen and ink",
+        "category": "writing"
+      },
+      {
+        "name": "Design Inspiration",
+        "url": "https://images.unsplash.com/photo-1651611243377-2c15b94ad613",
+        "alt": "Bauhaus geometric art pattern",
+        "category": "design"
+      },
+      {
+        "name": "Problem Solving",
+        "url": "https://images.unsplash.com/photo-1769454297008-0098feffa1c2",
+        "alt": "Glass sphere with mysterious light",
+        "category": "problem-solving"
+      },
+      {
+        "name": "Gift Ideas",
+        "url": "https://images.unsplash.com/photo-1637679276613-9b0f80d39a40",
+        "alt": "Origami paper crane",
+        "category": "gift-ideas"
+      },
+      {
+        "name": "Project Names",
+        "url": "https://images.unsplash.com/photo-1543089745-8f772b9db4ae",
+        "alt": "Abstract neon lights",
+        "category": "project-names"
+      },
+      {
+        "name": "Content Ideas",
+        "url": "https://images.unsplash.com/photo-1705656774214-d276c2092c42",
+        "alt": "Prism refracting light into rainbow",
+        "category": "content-ideas"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "1. INSTALL FONTS: Add the Google Fonts import to index.css immediately.",
+    "2. SETUP THEME: Update tailwind.config.js with the colors defined in 'colors' section. Use CSS variables for light/dark mode switching.",
+    "3. CREATE LAYOUT: Build the Landing Page using the 'Bento Grid' strategy. Do not use simple columns.",
+    "4. USE IMAGES: Use the provided image URLs for the category cards. Do not use placeholders.",
+    "5. CUSTOMIZE SHADCN: When using Shadcn components (Input, Button, Card), override their default styles with the classes defined in 'components'.",
+    "6. ADD TEXTURE: Add a fixed position div with a noise texture to the root layout.",
+    "7. NO GENERIC AI: Do not use robot emojis or 'AI' generic blue gradients. Stick to the 'Creative Studio' aesthetic.",
+    "8. DATA-TESTID: Ensure all interactive elements have data-testid attributes."
+  ],
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms.",
+    "You MUST NOT center align the app container.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠 etc.",
+    "Every interaction needs micro-animations.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Use sonner for toasts."
+  ]
+}

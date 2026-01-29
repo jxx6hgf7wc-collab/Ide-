@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Create from './pages/Create';
 import Favorites from './pages/Favorites';
 import Settings from './pages/Settings';
+import MyIdeas from './pages/MyIdeas';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {

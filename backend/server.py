@@ -392,6 +392,88 @@ async def delete_favorite(favorite_id: str, current_user: dict = Depends(get_cur
     
     return {"message": "Favorite deleted"}
 
+# ============== My Ideas Routes ==============
+
+@api_router.post("/ideas", response_model=IdeaResponse)
+async def create_idea(data: IdeaCreate, current_user: dict = Depends(get_current_user)):
+    idea_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc).isoformat()
+    
+    idea_doc = {
+        "id": idea_id,
+        "user_id": current_user["id"],
+        "title": data.title,
+        "content": data.content,
+        "idea_type": data.idea_type,
+        "media_url": data.media_url,
+        "tags": data.tags or [],
+        "created_at": now,
+        "updated_at": now
+    }
+    
+    await db.ideas.insert_one(idea_doc)
+    
+    return IdeaResponse(**idea_doc)
+
+@api_router.get("/ideas", response_model=List[IdeaResponse])
+async def get_ideas(
+    idea_type: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    query = {"user_id": current_user["id"]}
+    if idea_type:
+        query["idea_type"] = idea_type
+    
+    ideas = await db.ideas.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+    
+    return [IdeaResponse(**i) for i in ideas]
+
+@api_router.get("/ideas/{idea_id}", response_model=IdeaResponse)
+async def get_idea(idea_id: str, current_user: dict = Depends(get_current_user)):
+    idea = await db.ideas.find_one(
+        {"id": idea_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    )
+    
+    if not idea:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    return IdeaResponse(**idea)
+
+@api_router.put("/ideas/{idea_id}", response_model=IdeaResponse)
+async def update_idea(idea_id: str, data: IdeaUpdate, current_user: dict = Depends(get_current_user)):
+    update_data = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    
+    if data.title is not None:
+        update_data["title"] = data.title
+    if data.content is not None:
+        update_data["content"] = data.content
+    if data.tags is not None:
+        update_data["tags"] = data.tags
+    
+    result = await db.ideas.update_one(
+        {"id": idea_id, "user_id": current_user["id"]},
+        {"$set": update_data}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    idea = await db.ideas.find_one({"id": idea_id}, {"_id": 0})
+    return IdeaResponse(**idea)
+
+@api_router.delete("/ideas/{idea_id}")
+async def delete_idea(idea_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.ideas.delete_one({
+        "id": idea_id,
+        "user_id": current_user["id"]
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    return {"message": "Idea deleted"}
+
 # Include the router in the main app
 app.include_router(api_router)
 

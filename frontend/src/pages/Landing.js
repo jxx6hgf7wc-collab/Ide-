@@ -14,7 +14,7 @@ import {
     ArrowRight,
     Sun,
     Moon,
-    Ideæles
+    Sparkles
 } from 'lucide-react';
 
 const categories = [
@@ -96,7 +96,7 @@ export default function Landing() {
             <nav className="fixed top-0 left-0 right-0 z-50 glass">
                 <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Ideæles className="w-6 h-6 text-spark-yellow" />
+                        <Sparkles className="w-6 h-6 text-spark-yellow" />
                         <span className="font-serif text-xl font-medium">Ideæ</span>
                     </div>
                     <div className="flex items-center gap-4">
@@ -208,7 +208,7 @@ export default function Landing() {
             <footer className="py-12 px-6 md:px-12 lg:px-24 border-t border-border/50">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
-                        <Ideæles className="w-5 h-5 text-spark-yellow" />
+                        <Sparkles className="w-5 h-5 text-spark-yellow" />
                         <span className="font-serif text-lg">Ideæ</span>
                     </div>
                     <p className="font-sans text-sm text-muted-foreground">

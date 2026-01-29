@@ -21,7 +21,7 @@ import {
     Copy,
     Sun,
     Moon,
-    Ideæles,
+    Sparkles,
     Loader2,
     Check
 } from 'lucide-react';
@@ -205,7 +205,7 @@ export default function Create() {
                     <div className="py-6 space-y-6">
                         {suggestions.length === 0 ? (
                             <div className="text-center py-16">
-                                <Ideæles className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                                <Sparkles className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
                                 <h3 className="font-serif text-xl mb-2">Ready to spark creativity</h3>
                                 <p className="text-muted-foreground text-sm max-w-md mx-auto">
                                     Describe what you're looking for below, and I'll generate creative suggestions tailored to your needs.

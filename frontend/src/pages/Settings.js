@@ -10,7 +10,7 @@ import {
     ArrowLeft,
     Sun,
     Moon,
-    Ideæles,
+    Sparkles,
     User,
     Palette,
     LogOut
@@ -49,7 +49,7 @@ export default function Settings() {
                     </Button>
                     
                     <div className="flex items-center gap-2">
-                        <Ideæles className="w-5 h-5 text-spark-yellow" />
+                        <Sparkles className="w-5 h-5 text-spark-yellow" />
                         <span className="font-serif text-lg font-medium">Ideæ</span>
                     </div>
                 </div>

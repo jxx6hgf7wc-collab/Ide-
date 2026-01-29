@@ -155,11 +155,7 @@ const parseResponse = (text) => {
     
     return sections;
     
-    if (currentSection) {
-        sections.push(currentSection);
-    }
-    
-    return sections.length > 0 ? sections : [{ title: null, content: [text], number: 1 }];
+    return sections;
 };
 
 export default function Create() {

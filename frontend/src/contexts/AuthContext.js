@@ -7,11 +7,11 @@ const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('spark_token'));
+    const [token, setToken] = useState(localStorage.getItem('ideae_token'));
     const [loading, setLoading] = useState(true);
 
     const logout = useCallback(() => {
-        localStorage.removeItem('spark_token');
+        localStorage.removeItem('ideae_token');
         delete axios.defaults.headers.common['Authorization'];
         setToken(null);
         setUser(null);
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
         const response = await axios.post(`${API_URL}/auth/login`, { email, password });
         const { token: newToken, user: userData } = response.data;
         
-        localStorage.setItem('spark_token', newToken);
+        localStorage.setItem('ideae_token', newToken);
         axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
         setToken(newToken);
         setUser(userData);
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
         const response = await axios.post(`${API_URL}/auth/register`, { name, email, password });
         const { token: newToken, user: userData } = response.data;
         
-        localStorage.setItem('spark_token', newToken);
+        localStorage.setItem('ideae_token', newToken);
         axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
         setToken(newToken);
         setUser(userData);

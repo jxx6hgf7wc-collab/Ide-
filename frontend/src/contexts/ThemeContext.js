@@ -6,7 +6,7 @@ const ThemeContext = createContext(null);
 export const ThemeProvider = ({ children }) => {
     const { user, updateTheme } = useAuth();
     const [theme, setThemeState] = useState(() => {
-        const saved = localStorage.getItem('spark_theme');
+        const saved = localStorage.getItem('ideae_theme');
         return saved || 'light';
     });
 
@@ -20,7 +20,7 @@ export const ThemeProvider = ({ children }) => {
         const root = window.document.documentElement;
         root.classList.remove('light', 'dark');
         root.classList.add(theme);
-        localStorage.setItem('spark_theme', theme);
+        localStorage.setItem('ideae_theme', theme);
     }, [theme]);
 
     const setTheme = async (newTheme) => {

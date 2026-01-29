@@ -87,6 +87,32 @@ class FavoriteResponse(BaseModel):
 class ThemeUpdate(BaseModel):
     theme: str
 
+# ============== My Ideas Models ==============
+
+class IdeaCreate(BaseModel):
+    title: str
+    content: Optional[str] = None
+    idea_type: str  # note, idea, photo, video, link
+    media_url: Optional[str] = None
+    tags: Optional[List[str]] = []
+
+class IdeaUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    tags: Optional[List[str]] = None
+
+class IdeaResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    user_id: str
+    title: str
+    content: Optional[str] = None
+    idea_type: str
+    media_url: Optional[str] = None
+    tags: List[str] = []
+    created_at: str
+    updated_at: str
+
 # ============== Auth Helpers ==============
 
 def hash_password(password: str) -> str:

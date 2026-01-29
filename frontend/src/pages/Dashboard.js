@@ -170,37 +170,62 @@ export default function Dashboard() {
                     </p>
                 </div>
 
-                {/* Favorites Quick Access - Prominent Card */}
-                <Card 
-                    className="mb-8 rounded-2xl border-2 border-rose-500/30 bg-gradient-to-r from-rose-500/10 to-pink-500/10 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 group"
-                    onClick={() => navigate('/favorites')}
-                    data-testid="favorites-card"
-                >
-                    <CardContent className="p-6 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                <Heart className="w-7 h-7 text-white fill-white" />
+                {/* Quick Access Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    {/* Favorites Quick Access */}
+                    <Card 
+                        className="rounded-2xl border-2 border-rose-500/30 bg-gradient-to-r from-rose-500/10 to-pink-500/10 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 group"
+                        onClick={() => navigate('/favorites')}
+                        data-testid="favorites-card"
+                    >
+                        <CardContent className="p-6 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                    <Heart className="w-7 h-7 text-white fill-white" />
+                                </div>
+                                <div>
+                                    <h3 className="font-serif text-xl font-medium">Your Favorites</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        {favoritesCount === 0 
+                                            ? "Save ideas you love" 
+                                            : `${favoritesCount} saved ${favoritesCount === 1 ? 'idea' : 'ideas'}`
+                                        }
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-serif text-xl font-medium">Your Favorites</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    {favoritesCount === 0 
-                                        ? "Save ideas you love for quick access" 
-                                        : `${favoritesCount} saved ${favoritesCount === 1 ? 'idea' : 'ideas'} waiting for you`
-                                    }
-                                </p>
+                            <div className="flex items-center gap-2">
+                                {favoritesCount > 0 && (
+                                    <span className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-rose-500 text-white text-sm font-bold">
+                                        {favoritesCount}
+                                    </span>
+                                )}
+                                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
                             </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            {favoritesCount > 0 && (
-                                <span className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-rose-500 text-white text-sm font-bold">
-                                    {favoritesCount}
-                                </span>
-                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* My Ideas Quick Access */}
+                    <Card 
+                        className="rounded-2xl border-2 border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 group"
+                        onClick={() => navigate('/my-ideas')}
+                        data-testid="my-ideas-card"
+                    >
+                        <CardContent className="p-6 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                    <NotebookPen className="w-7 h-7 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="font-serif text-xl font-medium">My Ideas</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        Notes, photos, videos & more
+                                    </p>
+                                </div>
+                            </div>
                             <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                </div>
 
                 {/* Categories Grid */}
                 <section className="mb-12">

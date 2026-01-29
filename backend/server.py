@@ -273,6 +273,11 @@ async def generate_suggestion(data: QueryRequest, current_user: dict = Depends(g
     if data.category not in CATEGORY_PROMPTS:
         raise HTTPException(status_code=400, detail="Invalid category")
     
+    # Content moderation check
+    is_blocked, block_reason = check_content_moderation(data.prompt)
+    if is_blocked:
+        raise HTTPException(status_code=400, detail=block_reason)
+    
     api_key = os.environ.get('EMERGENT_LLM_KEY')
     if not api_key:
         raise HTTPException(status_code=500, detail="AI service not configured")

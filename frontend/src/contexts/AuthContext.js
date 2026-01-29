@@ -86,13 +86,6 @@ export const AuthProvider = ({ children }) => {
         return userData;
     };
 
-    const logout = () => {
-        localStorage.removeItem('spark_token');
-        delete axios.defaults.headers.common['Authorization'];
-        setToken(null);
-        setUser(null);
-    };
-
     const updateTheme = async (theme) => {
         try {
             const response = await axios.put(`${API_URL}/settings/theme`, { theme });

@@ -119,6 +119,41 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+# ============== Content Moderation ==============
+
+# Blocked terms for NSFW and religious hate content
+BLOCKED_PATTERNS = [
+    # NSFW terms
+    "porn", "xxx", "nude", "naked", "sex", "erotic", "fetish", "hentai",
+    "nsfw", "adult content", "explicit", "sexually", "genitals", "orgasm",
+    "masturbat", "intercourse", "prostitut", "escort service",
+    
+    # Religious hate/discrimination
+    "kill all", "death to", "exterminate", "genocide",
+    "hate muslims", "hate christians", "hate jews", "hate hindus", "hate buddhists",
+    "anti-muslim", "anti-christian", "anti-jewish", "anti-semit", "anti-hindu",
+    "islamophob", "antisemit", "religous hate", "religious hate",
+    "burn the quran", "burn the bible", "burn the torah",
+    "terrorist religion", "evil religion", "false religion",
+    
+    # General hate speech
+    "racial slur", "n word", "hate speech", "white supremac", "nazi",
+    "ethnic cleansing", "hate crime", "lynch", "slaughter people"
+]
+
+def check_content_moderation(text: str) -> tuple[bool, str]:
+    """
+    Check if text contains blocked content.
+    Returns (is_blocked, reason) tuple.
+    """
+    text_lower = text.lower()
+    
+    for pattern in BLOCKED_PATTERNS:
+        if pattern in text_lower:
+            return True, f"Content blocked: Your query contains inappropriate content. Please keep requests creative and respectful."
+    
+    return False, ""
+
 # ============== Category Prompts ==============
 
 CATEGORY_PROMPTS = {

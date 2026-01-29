@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -10,16 +10,14 @@ export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('spark_token'));
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            fetchUser();
-        } else {
-            setLoading(false);
-        }
-    }, [token]);
+    const logout = useCallback(() => {
+        localStorage.removeItem('spark_token');
+        delete axios.defaults.headers.common['Authorization'];
+        setToken(null);
+        setUser(null);
+    }, []);
 
-    const fetchUser = async () => {
+    const fetchUser = useCallback(async () => {
         try {
             const response = await axios.get(`${API_URL}/auth/me`);
             setUser(response.data);
@@ -35,7 +33,34 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [logout]);
+
+    useEffect(() => {
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            fetchUser();
+        } else {
+            setLoading(false);
+        }
+    }, [token, fetchUser]);
+
+    // Set up axios interceptor for handling auth errors globally
+    useEffect(() => {
+        const interceptor = axios.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                if (error.response?.status === 401 && token) {
+                    // Token is invalid or expired
+                    logout();
+                }
+                return Promise.reject(error);
+            }
+        );
+
+        return () => {
+            axios.interceptors.response.eject(interceptor);
+        };
+    }, [token, logout]);
 
     const login = async (email, password) => {
         const response = await axios.post(`${API_URL}/auth/login`, { email, password });

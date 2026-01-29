@@ -89,35 +89,71 @@ const parseResponse = (text) => {
         const trimmed = line.trim();
         if (!trimmed) return;
         
-        // Check for numbered items (1. , 2. , 3. , etc.) or bullet points
-        const numberedMatch = trimmed.match(/^(\d+)\.\s*\*?\*?(.+?)\*?\*?\s*$/);
-        const boldMatch = trimmed.match(/^\*\*(.+?)\*\*:?\s*(.*)$/);
+        // Check for numbered items with various formats: "1.", "1)", "1:", etc.
+        const numberedMatch = trimmed.match(/^(\d+)[\.\)\:]?\s*\)?\s*\*?\*?["']?(.+?)["']?\*?\*?\s*$/);
+        const boldHeaderMatch = trimmed.match(/^\*\*(\d+[\.\)]?\s*)?(.+?)\*\*:?\s*$/);
         const headerMatch = trimmed.match(/^#{1,3}\s*(.+)$/);
         
-        if (numberedMatch || boldMatch || headerMatch) {
-            if (currentSection) {
+        // Detect if this is a new section header
+        const isNewSection = numberedMatch || boldHeaderMatch || headerMatch;
+        
+        if (isNewSection) {
+            if (currentSection && (currentSection.title || currentSection.content.length > 0)) {
                 sections.push(currentSection);
             }
+            
+            let title = '';
+            let number = sections.length + 1;
+            
+            if (numberedMatch) {
+                number = parseInt(numberedMatch[1]);
+                title = numberedMatch[2].replace(/\*\*/g, '').replace(/^["']|["']$/g, '');
+            } else if (boldHeaderMatch) {
+                title = boldHeaderMatch[2].replace(/\*\*/g, '');
+                if (boldHeaderMatch[1]) {
+                    const num = boldHeaderMatch[1].match(/(\d+)/);
+                    if (num) number = parseInt(num[1]);
+                }
+            } else if (headerMatch) {
+                title = headerMatch[1];
+            }
+            
             currentSection = {
-                title: numberedMatch ? numberedMatch[2] : (boldMatch ? boldMatch[1] : headerMatch[1]),
-                content: boldMatch && boldMatch[2] ? [boldMatch[2]] : [],
-                number: numberedMatch ? parseInt(numberedMatch[1]) : sections.length + 1
+                title: title,
+                content: [],
+                number: number
             };
         } else if (currentSection) {
-            // Add content to current section
-            const cleanLine = trimmed.replace(/^\*\s*/, '').replace(/^-\s*/, '');
+            // Add content to current section - clean up markdown
+            let cleanLine = trimmed
+                .replace(/^\*\s*/, '')
+                .replace(/^-\s*/, '')
+                .replace(/\*\*(.+?)\*\*/g, '$1')
+                .replace(/\*(.+?)\*/g, '$1');
+            
             if (cleanLine) {
                 currentSection.content.push(cleanLine);
             }
         } else {
-            // First content without header
+            // First content without header - create a section
             currentSection = {
                 title: null,
-                content: [trimmed],
+                content: [trimmed.replace(/\*\*(.+?)\*\*/g, '$1')],
                 number: 1
             };
         }
     });
+    
+    if (currentSection && (currentSection.title || currentSection.content.length > 0)) {
+        sections.push(currentSection);
+    }
+    
+    // If no structured sections found, create one with the full text
+    if (sections.length === 0) {
+        return [{ title: null, content: [text], number: 1 }];
+    }
+    
+    return sections;
     
     if (currentSection) {
         sections.push(currentSection);

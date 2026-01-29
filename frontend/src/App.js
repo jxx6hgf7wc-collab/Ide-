@@ -1,54 +1,98 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from './components/ui/sonner';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Pages
+import Landing from './pages/Landing';
+import Auth from './pages/Auth';
+import Dashboard from './pages/Dashboard';
+import Create from './pages/Create';
+import Favorites from './pages/Favorites';
+import Settings from './pages/Settings';
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+    const { isAuthenticated, loading } = useAuth();
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="animate-pulse-soft">
+                    <div className="w-8 h-8 rounded-full bg-primary/20"></div>
+                </div>
+            </div>
+        );
     }
-  };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+    if (!isAuthenticated) {
+        return <Navigate to="/auth" replace />;
+    }
 
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
+    return children;
+};
+
+// App Routes
+const AppRoutes = () => {
+    return (
+        <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route
+                path="/dashboard"
+                element={
+                    <ProtectedRoute>
+                        <Dashboard />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/create/:categoryId"
+                element={
+                    <ProtectedRoute>
+                        <Create />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/favorites"
+                element={
+                    <ProtectedRoute>
+                        <Favorites />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/settings"
+                element={
+                    <ProtectedRoute>
+                        <Settings />
+                    </ProtectedRoute>
+                }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+    );
 };
 
 function App() {
-  return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
-  );
+    return (
+        <BrowserRouter>
+            <AuthProvider>
+                <ThemeProvider>
+                    <AppRoutes />
+                    <Toaster 
+                        position="top-center" 
+                        richColors 
+                        closeButton
+                        toastOptions={{
+                            className: 'rounded-xl',
+                        }}
+                    />
+                </ThemeProvider>
+            </AuthProvider>
+        </BrowserRouter>
+    );
 }
 
 export default App;

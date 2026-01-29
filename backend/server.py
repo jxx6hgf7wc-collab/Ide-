@@ -1,15 +1,18 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
+from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
-
+from datetime import datetime, timezone, timedelta
+import bcrypt
+import jwt
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -19,52 +22,309 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
+# JWT Config
+JWT_SECRET = os.environ.get('JWT_SECRET', 'spark-secret-key-2024')
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_HOURS = 24
+
+# Create the main app
 app = FastAPI()
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+security = HTTPBearer()
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
+# ============== Models ==============
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    email: str
+    name: str
+    theme: str = "light"
+    created_at: str
+
+class TokenResponse(BaseModel):
+    token: str
+    user: UserResponse
+
+class QueryRequest(BaseModel):
+    category: str
+    prompt: str
+
+class SuggestionResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    category: str
+    prompt: str
+    suggestion: str
+    created_at: str
+
+class FavoriteCreate(BaseModel):
+    category: str
+    prompt: str
+    suggestion: str
+
+class FavoriteResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    user_id: str
+    category: str
+    prompt: str
+    suggestion: str
+    created_at: str
+
+class ThemeUpdate(BaseModel):
+    theme: str
+
+# ============== Auth Helpers ==============
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+def verify_password(password: str, hashed: str) -> bool:
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
+def create_token(user_id: str) -> str:
+    expiration = datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS)
+    payload = {
+        "user_id": user_id,
+        "exp": expiration
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get("user_id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+# ============== Category Prompts ==============
+
+CATEGORY_PROMPTS = {
+    "writing": """You are a creative writing assistant helping someone overcome writer's block. 
+Generate unique, inspiring writing prompts and story ideas. Be specific and imaginative.
+Provide 3 distinct creative suggestions based on the user's input.""",
     
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    "design": """You are a design inspiration expert. Help users find creative visual concepts, 
+color palettes, layout ideas, and aesthetic directions. Be specific about visual elements.
+Provide 3 distinct creative design suggestions based on the user's input.""",
+    
+    "problem-solving": """You are a creative problem-solving consultant. Help users think outside 
+the box and find innovative solutions. Use lateral thinking and unconventional approaches.
+Provide 3 distinct creative solutions based on the user's input.""",
+    
+    "gift-ideas": """You are a thoughtful gift curator. Suggest unique, personalized gift ideas 
+that go beyond typical suggestions. Consider the recipient's interests and the occasion.
+Provide 3 distinct creative gift suggestions based on the user's input.""",
+    
+    "project-names": """You are a naming expert and branding specialist. Generate memorable, 
+creative names for projects, businesses, products, or creative works.
+Provide 5 distinct creative name suggestions based on the user's input.""",
+    
+    "content-ideas": """You are a content strategist and creative director. Generate engaging 
+content ideas for blogs, social media, videos, or other creative platforms.
+Provide 3 distinct creative content suggestions based on the user's input."""
+}
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+# ============== Routes ==============
 
-# Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Spark API - Creative Assistant"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
+# Auth Routes
+@api_router.post("/auth/register", response_model=TokenResponse)
+async def register(data: UserCreate):
+    existing = await db.users.find_one({"email": data.email}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
     
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
+    user_id = str(uuid.uuid4())
+    user_doc = {
+        "id": user_id,
+        "email": data.email,
+        "name": data.name,
+        "password_hash": hash_password(data.password),
+        "theme": "light",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
     
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+    await db.users.insert_one(user_doc)
+    
+    token = create_token(user_id)
+    user_response = UserResponse(
+        id=user_id,
+        email=data.email,
+        name=data.name,
+        theme="light",
+        created_at=user_doc["created_at"]
+    )
+    
+    return TokenResponse(token=token, user=user_response)
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
+@api_router.post("/auth/login", response_model=TokenResponse)
+async def login(data: UserLogin):
+    user = await db.users.find_one({"email": data.email}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
+    if not verify_password(data.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    return status_checks
+    token = create_token(user["id"])
+    user_response = UserResponse(
+        id=user["id"],
+        email=user["email"],
+        name=user["name"],
+        theme=user.get("theme", "light"),
+        created_at=user["created_at"]
+    )
+    
+    return TokenResponse(token=token, user=user_response)
+
+@api_router.get("/auth/me", response_model=UserResponse)
+async def get_me(current_user: dict = Depends(get_current_user)):
+    return UserResponse(
+        id=current_user["id"],
+        email=current_user["email"],
+        name=current_user["name"],
+        theme=current_user.get("theme", "light"),
+        created_at=current_user["created_at"]
+    )
+
+# Settings Routes
+@api_router.put("/settings/theme", response_model=UserResponse)
+async def update_theme(data: ThemeUpdate, current_user: dict = Depends(get_current_user)):
+    if data.theme not in ["light", "dark"]:
+        raise HTTPException(status_code=400, detail="Invalid theme")
+    
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"theme": data.theme}}
+    )
+    
+    return UserResponse(
+        id=current_user["id"],
+        email=current_user["email"],
+        name=current_user["name"],
+        theme=data.theme,
+        created_at=current_user["created_at"]
+    )
+
+# AI Creative Routes
+@api_router.post("/creative/generate", response_model=SuggestionResponse)
+async def generate_suggestion(data: QueryRequest, current_user: dict = Depends(get_current_user)):
+    if data.category not in CATEGORY_PROMPTS:
+        raise HTTPException(status_code=400, detail="Invalid category")
+    
+    api_key = os.environ.get('EMERGENT_LLM_KEY')
+    if not api_key:
+        raise HTTPException(status_code=500, detail="AI service not configured")
+    
+    system_prompt = CATEGORY_PROMPTS[data.category]
+    
+    try:
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=f"spark-{current_user['id']}-{uuid.uuid4()}",
+            system_message=system_prompt
+        ).with_model("openai", "gpt-5.2")
+        
+        user_message = UserMessage(text=data.prompt)
+        response = await chat.send_message(user_message)
+        
+        suggestion_id = str(uuid.uuid4())
+        created_at = datetime.now(timezone.utc).isoformat()
+        
+        # Save query history
+        query_doc = {
+            "id": suggestion_id,
+            "user_id": current_user["id"],
+            "category": data.category,
+            "prompt": data.prompt,
+            "suggestion": response,
+            "created_at": created_at
+        }
+        await db.queries.insert_one(query_doc)
+        
+        return SuggestionResponse(
+            id=suggestion_id,
+            category=data.category,
+            prompt=data.prompt,
+            suggestion=response,
+            created_at=created_at
+        )
+    except Exception as e:
+        logging.error(f"AI generation error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate suggestion")
+
+@api_router.get("/creative/history", response_model=List[SuggestionResponse])
+async def get_history(current_user: dict = Depends(get_current_user)):
+    queries = await db.queries.find(
+        {"user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(50).to_list(50)
+    
+    return [SuggestionResponse(**q) for q in queries]
+
+# Favorites Routes
+@api_router.post("/favorites", response_model=FavoriteResponse)
+async def add_favorite(data: FavoriteCreate, current_user: dict = Depends(get_current_user)):
+    favorite_id = str(uuid.uuid4())
+    favorite_doc = {
+        "id": favorite_id,
+        "user_id": current_user["id"],
+        "category": data.category,
+        "prompt": data.prompt,
+        "suggestion": data.suggestion,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.favorites.insert_one(favorite_doc)
+    
+    return FavoriteResponse(**favorite_doc)
+
+@api_router.get("/favorites", response_model=List[FavoriteResponse])
+async def get_favorites(current_user: dict = Depends(get_current_user)):
+    favorites = await db.favorites.find(
+        {"user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    
+    return [FavoriteResponse(**f) for f in favorites]
+
+@api_router.delete("/favorites/{favorite_id}")
+async def delete_favorite(favorite_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.favorites.delete_one({
+        "id": favorite_id,
+        "user_id": current_user["id"]
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Favorite not found")
+    
+    return {"message": "Favorite deleted"}
 
 # Include the router in the main app
 app.include_router(api_router)

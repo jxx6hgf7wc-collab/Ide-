@@ -72,6 +72,14 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
+            <Route
+                path="/my-ideas"
+                element={
+                    <ProtectedRoute>
+                        <MyIdeas />
+                    </ProtectedRoute>
+                }
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     );

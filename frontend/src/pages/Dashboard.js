@@ -24,7 +24,7 @@ import {
     ArrowRight,
     Sun,
     Moon,
-    Sparkles,
+    Ideæles,
     User,
     LogOut,
     Heart,
@@ -98,8 +98,8 @@ export default function Dashboard() {
                         className="flex items-center gap-2 cursor-pointer"
                         onClick={() => navigate('/')}
                     >
-                        <Sparkles className="w-6 h-6 text-spark-yellow" />
-                        <span className="font-serif text-xl font-medium">Spark</span>
+                        <Ideæles className="w-6 h-6 text-spark-yellow" />
+                        <span className="font-serif text-xl font-medium">Ideæ</span>
                     </div>
                     
                     <div className="flex items-center gap-3">

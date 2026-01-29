@@ -186,7 +186,7 @@ Provide 3 distinct creative content suggestions based on the user's input."""
 
 @api_router.get("/")
 async def root():
-    return {"message": "Spark API - Creative Assistant"}
+    return {"message": "Ideæ API - Creative Assistant"}
 
 # Auth Routes
 @api_router.post("/auth/register", response_model=TokenResponse)

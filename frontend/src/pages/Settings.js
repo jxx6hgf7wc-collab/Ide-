@@ -10,7 +10,7 @@ import {
     ArrowLeft,
     Sun,
     Moon,
-    Sparkles,
+    Ideæles,
     User,
     Palette,
     LogOut
@@ -49,8 +49,8 @@ export default function Settings() {
                     </Button>
                     
                     <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-spark-yellow" />
-                        <span className="font-serif text-lg font-medium">Spark</span>
+                        <Ideæles className="w-5 h-5 text-spark-yellow" />
+                        <span className="font-serif text-lg font-medium">Ideæ</span>
                     </div>
                 </div>
             </nav>
@@ -90,7 +90,7 @@ export default function Settings() {
                             </div>
                             <div>
                                 <CardTitle className="font-serif text-lg">Appearance</CardTitle>
-                                <CardDescription>Customize how Spark looks</CardDescription>
+                                <CardDescription>Customize how Ideæ looks</CardDescription>
                             </div>
                         </div>
                     </CardHeader>

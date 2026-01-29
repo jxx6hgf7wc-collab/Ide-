@@ -14,7 +14,7 @@ import {
     ArrowRight,
     Sun,
     Moon,
-    Sparkles
+    Ideæles
 } from 'lucide-react';
 
 const categories = [
@@ -96,8 +96,8 @@ export default function Landing() {
             <nav className="fixed top-0 left-0 right-0 z-50 glass">
                 <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Sparkles className="w-6 h-6 text-spark-yellow" />
-                        <span className="font-serif text-xl font-medium">Spark</span>
+                        <Ideæles className="w-6 h-6 text-spark-yellow" />
+                        <span className="font-serif text-xl font-medium">Ideæ</span>
                     </div>
                     <div className="flex items-center gap-4">
                         <Button
@@ -138,7 +138,7 @@ export default function Landing() {
                             The Anti-Block Creative Assistant
                         </p>
                         <h1 className="font-serif text-5xl md:text-7xl font-light tracking-tight leading-[0.9] mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                            Stuck? Let's <span className="text-gradient">Spark</span> something creative.
+                            Stuck? Let's <span className="text-gradient">Ideæ</span> something creative.
                         </h1>
                         <p className="font-sans text-base md:text-lg leading-relaxed text-muted-foreground max-w-xl mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
                             Not for everyday questions. For when you need real creative help — 
@@ -208,8 +208,8 @@ export default function Landing() {
             <footer className="py-12 px-6 md:px-12 lg:px-24 border-t border-border/50">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-spark-yellow" />
-                        <span className="font-serif text-lg">Spark</span>
+                        <Ideæles className="w-5 h-5 text-spark-yellow" />
+                        <span className="font-serif text-lg">Ideæ</span>
                     </div>
                     <p className="font-sans text-sm text-muted-foreground">
                         Designed to unblock your creativity

@@ -27,7 +27,7 @@ import {
     Trash2,
     Sun,
     Moon,
-    Sparkles,
+    Ideæles,
     Heart,
     Check,
     Loader2
@@ -159,7 +159,7 @@ export default function Favorites() {
                     </div>
                 ) : favorites.length === 0 ? (
                     <div className="text-center py-16">
-                        <Sparkles className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                        <Ideæles className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
                         <h3 className="font-serif text-xl mb-2">No favorites yet</h3>
                         <p className="text-muted-foreground text-sm mb-6">
                             Save your favorite creative suggestions to find them here

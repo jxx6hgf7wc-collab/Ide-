@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
-import { Sparkles, Sun, Moon, ArrowLeft, Loader2 } from 'lucide-react';
+import { Ideæles, Sun, Moon, ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function Auth() {
     const navigate = useNavigate();
@@ -94,8 +94,8 @@ export default function Auth() {
                 <div className="w-full max-w-md">
                     {/* Logo */}
                     <div className="flex items-center justify-center gap-2 mb-8">
-                        <Sparkles className="w-8 h-8 text-spark-yellow" />
-                        <span className="font-serif text-2xl font-medium">Spark</span>
+                        <Ideæles className="w-8 h-8 text-spark-yellow" />
+                        <span className="font-serif text-2xl font-medium">Ideæ</span>
                     </div>
 
                     <Card className="rounded-2xl shadow-soft border-border/50">
@@ -248,7 +248,7 @@ export default function Auth() {
                     </Card>
 
                     <p className="text-center text-sm text-muted-foreground mt-6">
-                        By continuing, you agree to Spark's Terms of Service
+                        By continuing, you agree to Ideæ's Terms of Service
                     </p>
                 </div>
             </div>

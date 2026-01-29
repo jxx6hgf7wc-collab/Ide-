@@ -370,20 +370,28 @@ export default function Create() {
                                                                 key={idx}
                                                                 className="group/card relative p-5 rounded-2xl bg-secondary/50 hover:bg-secondary transition-colors duration-200 border border-transparent hover:border-border/50"
                                                             >
-                                                                {/* Number Badge */}
+                                                                {/* Number Badge - Main Idea */}
                                                                 <div className={`absolute -top-2 -left-2 w-8 h-8 rounded-full bg-gradient-to-br ${category.accentColor} flex items-center justify-center text-white text-sm font-bold shadow-md`}>
                                                                     {section.number}
                                                                 </div>
                                                                 
                                                                 {section.title && (
-                                                                    <h4 className="font-serif text-lg font-medium mb-2 mt-2 pr-4">
+                                                                    <h4 className="font-serif text-lg font-medium mb-3 mt-2 pr-4">
                                                                         {section.title.replace(/\*\*/g, '')}
                                                                     </h4>
                                                                 )}
                                                                 
-                                                                <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
+                                                                {/* Steps/Content - with smaller muted badges */}
+                                                                <div className="space-y-2">
                                                                     {section.content.map((line, lineIdx) => (
-                                                                        <p key={lineIdx}>{line.replace(/\*\*/g, '')}</p>
+                                                                        <div key={lineIdx} className="flex items-start gap-2">
+                                                                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-muted-foreground/20 flex items-center justify-center text-[10px] font-medium text-muted-foreground mt-0.5">
+                                                                                {lineIdx + 1}
+                                                                            </span>
+                                                                            <p className="text-xs text-muted-foreground leading-relaxed flex-1">
+                                                                                {line.replace(/\*\*/g, '')}
+                                                                            </p>
+                                                                        </div>
                                                                     ))}
                                                                 </div>
                                                                 

@@ -143,6 +143,10 @@ export default function Dashboard() {
                                     <Heart className="w-4 h-4 mr-2" />
                                     Favorites ({favoritesCount})
                                 </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => navigate('/my-ideas')} data-testid="dropdown-my-ideas">
+                                    <NotebookPen className="w-4 h-4 mr-2" />
+                                    My Ideas
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => navigate('/settings')} data-testid="dropdown-settings">
                                     <Settings className="w-4 h-4 mr-2" />
                                     Settings

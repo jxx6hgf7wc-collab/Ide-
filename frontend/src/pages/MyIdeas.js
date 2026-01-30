@@ -119,6 +119,8 @@ export default function MyIdeas() {
             setDrawingData(canvasRef.current.toDataURL('image/png'));
         }
         setIsDrawing(false);
+        // Re-enable page scroll
+        document.body.style.overflow = '';
     };
 
     const clearCanvas = () => {

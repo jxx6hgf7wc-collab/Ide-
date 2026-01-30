@@ -392,6 +392,22 @@ async def delete_favorite(favorite_id: str, current_user: dict = Depends(get_cur
     
     return {"message": "Favorite deleted"}
 
+class FavoriteUpdate(BaseModel):
+    suggestion: str
+
+@api_router.put("/favorites/{favorite_id}", response_model=FavoriteResponse)
+async def update_favorite(favorite_id: str, data: FavoriteUpdate, current_user: dict = Depends(get_current_user)):
+    result = await db.favorites.update_one(
+        {"id": favorite_id, "user_id": current_user["id"]},
+        {"$set": {"suggestion": data.suggestion}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Favorite not found")
+    
+    favorite = await db.favorites.find_one({"id": favorite_id}, {"_id": 0})
+    return FavoriteResponse(**favorite)
+
 # ============== My Ideas Routes ==============
 
 @api_router.post("/ideas", response_model=IdeaResponse)

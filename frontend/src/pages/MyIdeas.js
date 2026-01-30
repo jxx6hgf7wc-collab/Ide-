@@ -22,7 +22,12 @@ import {
     Type,
     X,
     Paperclip,
-    ChevronLeft
+    ChevronLeft,
+    Share2,
+    Globe,
+    Copy,
+    Check,
+    Lock
 } from 'lucide-react';
 
 const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -35,6 +40,7 @@ export default function MyIdeas() {
     const [view, setView] = useState('list'); // 'list' | 'create' | 'view'
     const [viewingIdea, setViewingIdea] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [copiedLink, setCopiedLink] = useState(false);
     
     // Form state
     const [activeMode, setActiveMode] = useState('write');

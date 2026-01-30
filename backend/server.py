@@ -436,6 +436,9 @@ async def create_idea(data: IdeaCreate, current_user: dict = Depends(get_current
         "idea_type": data.idea_type,
         "media_url": data.media_url,
         "tags": data.tags or [],
+        "is_public": False,
+        "share_id": None,
+        "author_name": current_user["name"],
         "created_at": now,
         "updated_at": now
     }

@@ -2,7 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Button } from '../components/ui/button';
+import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent } from '../components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '../components/ui/dialog';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -30,7 +37,9 @@ import {
     Sparkles,
     Heart,
     Check,
-    Loader2
+    Loader2,
+    Edit3,
+    Save
 } from 'lucide-react';
 
 const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -52,6 +61,11 @@ export default function Favorites() {
     const [copiedId, setCopiedId] = useState(null);
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    
+    // Edit state
+    const [editingFavorite, setEditingFavorite] = useState(null);
+    const [editedSuggestion, setEditedSuggestion] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         fetchFavorites();
@@ -97,6 +111,34 @@ export default function Favorites() {
         }
     };
 
+    const openEdit = (favorite) => {
+        setEditingFavorite(favorite);
+        setEditedSuggestion(favorite.suggestion);
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingFavorite) return;
+        
+        setIsSaving(true);
+        try {
+            const response = await axios.put(`${API_URL}/favorites/${editingFavorite.id}`, {
+                suggestion: editedSuggestion
+            });
+            
+            setFavorites(prev => prev.map(f => 
+                f.id === editingFavorite.id ? response.data : f
+            ));
+            
+            toast.success('Changes saved!');
+            setEditingFavorite(null);
+        } catch (error) {
+            console.error('Save error:', error);
+            toast.error('Failed to save changes');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     const getCategory = (categoryId) => {
         return categoryConfig[categoryId] || { 
             name: categoryId, 
@@ -136,15 +178,15 @@ export default function Favorites() {
             <div className="px-6 py-8 border-b border-border/50">
                 <div className="max-w-4xl mx-auto">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-rose-500/10 flex items-center justify-center">
-                            <Heart className="w-7 h-7 text-rose-600 dark:text-rose-400" />
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg">
+                            <Heart className="w-7 h-7 text-white fill-white" />
                         </div>
                         <div>
                             <h1 className="font-serif text-2xl md:text-3xl font-medium" data-testid="favorites-title">
                                 Your Favorites
                             </h1>
                             <p className="text-sm text-muted-foreground">
-                                {favorites.length} saved {favorites.length === 1 ? 'suggestion' : 'suggestions'}
+                                {favorites.length} saved {favorites.length === 1 ? 'suggestion' : 'suggestions'} • Click edit to customize
                             </p>
                         </div>
                     </div>
@@ -181,7 +223,7 @@ export default function Favorites() {
                             return (
                                 <Card 
                                     key={favorite.id} 
-                                    className="rounded-2xl border-border/50 shadow-soft animate-fade-in"
+                                    className="rounded-2xl border-border/50 shadow-soft animate-fade-in overflow-hidden"
                                     style={{ animationDelay: `${index * 0.05}s` }}
                                     data-testid={`favorite-${favorite.id}`}
                                 >
@@ -199,15 +241,26 @@ export default function Favorites() {
                                                     </p>
                                                 </div>
                                             </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="rounded-full h-8 w-8 text-muted-foreground hover:text-destructive"
-                                                onClick={() => setDeleteId(favorite.id)}
-                                                data-testid={`delete-favorite-${favorite.id}`}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
+                                            <div className="flex items-center gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="rounded-full h-8 w-8"
+                                                    onClick={() => openEdit(favorite)}
+                                                    data-testid={`edit-favorite-${favorite.id}`}
+                                                >
+                                                    <Edit3 className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="rounded-full h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                    onClick={() => setDeleteId(favorite.id)}
+                                                    data-testid={`delete-favorite-${favorite.id}`}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
                                         </div>
                                         
                                         {/* Original Prompt */}
@@ -243,6 +296,15 @@ export default function Favorites() {
                                                 variant="ghost"
                                                 size="sm"
                                                 className="rounded-full h-8 px-3"
+                                                onClick={() => openEdit(favorite)}
+                                            >
+                                                <Edit3 className="w-3 h-3 mr-1" />
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="rounded-full h-8 px-3"
                                                 onClick={() => navigate(`/create/${favorite.category}`)}
                                                 data-testid={`create-more-${favorite.id}`}
                                             >
@@ -256,6 +318,63 @@ export default function Favorites() {
                     </div>
                 )}
             </main>
+
+            {/* Edit Dialog */}
+            <Dialog open={!!editingFavorite} onOpenChange={() => setEditingFavorite(null)}>
+                <DialogContent className="sm:max-w-2xl rounded-2xl p-0 overflow-hidden max-h-[90vh]">
+                    {editingFavorite && (
+                        <>
+                            <DialogHeader className="px-6 pt-6 pb-4 border-b border-border/50">
+                                <DialogTitle className="font-serif text-xl">Edit Suggestion</DialogTitle>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    Customize this suggestion to better fit your needs
+                                </p>
+                            </DialogHeader>
+                            
+                            <div className="px-6 py-4 space-y-4 overflow-y-auto">
+                                {/* Original Prompt - Read only */}
+                                <div className="bg-secondary/50 rounded-xl p-4">
+                                    <p className="text-xs font-medium text-muted-foreground mb-1">Original prompt:</p>
+                                    <p className="text-sm">{editingFavorite.prompt}</p>
+                                </div>
+                                
+                                {/* Editable Suggestion */}
+                                <div>
+                                    <label className="text-sm font-medium mb-2 block">AI Suggestion (editable):</label>
+                                    <Textarea
+                                        value={editedSuggestion}
+                                        onChange={(e) => setEditedSuggestion(e.target.value)}
+                                        className="min-h-[300px] rounded-xl border-0 bg-secondary/30 resize-none text-sm leading-relaxed p-4"
+                                        placeholder="Edit the suggestion..."
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="px-6 py-4 border-t border-border/50 flex justify-end gap-3">
+                                <Button
+                                    variant="ghost"
+                                    className="rounded-full"
+                                    onClick={() => setEditingFavorite(null)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleSaveEdit}
+                                    disabled={isSaving}
+                                    className="rounded-full bg-gradient-to-r from-rose-500 to-pink-500 border-0"
+                                >
+                                    {isSaving ? (
+                                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                    ) : (
+                                        <Save className="w-4 h-4 mr-2" />
+                                    )}
+                                    Save Changes
+                                </Button>
+                            </div>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>

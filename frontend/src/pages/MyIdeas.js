@@ -64,6 +64,12 @@ export default function MyIdeas() {
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
             
+            // Lock body scroll when in draw mode
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.top = `-${window.scrollY}px`;
+            
             // Native event listeners with passive: false to prevent scroll
             const preventScroll = (e) => e.preventDefault();
             
@@ -75,12 +81,22 @@ export default function MyIdeas() {
                 canvas.removeEventListener('touchstart', preventScroll);
                 canvas.removeEventListener('touchmove', preventScroll);
                 canvas.removeEventListener('touchend', preventScroll);
+                
+                // Restore scroll position
+                const scrollY = document.body.style.top;
                 document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, parseInt(scrollY || '0') * -1);
             };
         }
         
         return () => {
             document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+            document.body.style.top = '';
         };
     }, [activeMode, view, theme, drawingData]);
 

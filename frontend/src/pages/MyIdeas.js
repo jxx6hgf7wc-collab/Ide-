@@ -63,13 +63,26 @@ export default function MyIdeas() {
                 ctx.fillStyle = theme === 'dark' ? '#1a1a1a' : '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
+            
+            // Native event listeners with passive: false to prevent scroll
+            const preventScroll = (e) => e.preventDefault();
+            
+            canvas.addEventListener('touchstart', preventScroll, { passive: false });
+            canvas.addEventListener('touchmove', preventScroll, { passive: false });
+            canvas.addEventListener('touchend', preventScroll, { passive: false });
+            
+            return () => {
+                canvas.removeEventListener('touchstart', preventScroll);
+                canvas.removeEventListener('touchmove', preventScroll);
+                canvas.removeEventListener('touchend', preventScroll);
+                document.body.style.overflow = '';
+            };
         }
         
-        // Cleanup: re-enable scroll when leaving draw mode
         return () => {
             document.body.style.overflow = '';
         };
-    }, [activeMode, view, theme]);
+    }, [activeMode, view, theme, drawingData]);
 
     const fetchIdeas = async () => {
         try {

@@ -78,6 +78,7 @@ export default function MyIdeas() {
     };
 
     const startDrawing = (e) => {
+        e.preventDefault();
         const canvas = canvasRef.current;
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
@@ -89,9 +90,13 @@ export default function MyIdeas() {
         ctx.beginPath();
         ctx.moveTo(x, y);
         setIsDrawing(true);
+        
+        // Prevent page scroll while drawing
+        document.body.style.overflow = 'hidden';
     };
 
     const draw = (e) => {
+        e.preventDefault();
         if (!isDrawing) return;
         const canvas = canvasRef.current;
         const rect = canvas.getBoundingClientRect();

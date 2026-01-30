@@ -506,6 +506,82 @@ async def delete_idea(idea_id: str, current_user: dict = Depends(get_current_use
     
     return {"message": "Idea deleted"}
 
+# Share idea - make it public
+@api_router.post("/ideas/{idea_id}/share")
+async def share_idea(idea_id: str, current_user: dict = Depends(get_current_user)):
+    idea = await db.ideas.find_one(
+        {"id": idea_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    )
+    
+    if not idea:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    # Generate a short share ID if not exists
+    share_id = idea.get("share_id") or str(uuid.uuid4())[:8]
+    
+    await db.ideas.update_one(
+        {"id": idea_id},
+        {"$set": {"is_public": True, "share_id": share_id, "author_name": current_user["name"]}}
+    )
+    
+    return {"share_id": share_id, "message": "Idea is now public"}
+
+# Unshare idea - make it private
+@api_router.post("/ideas/{idea_id}/unshare")
+async def unshare_idea(idea_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.ideas.update_one(
+        {"id": idea_id, "user_id": current_user["id"]},
+        {"$set": {"is_public": False}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Idea not found")
+    
+    return {"message": "Idea is now private"}
+
+# Public endpoint - view shared idea (no auth required)
+@api_router.get("/shared/{share_id}", response_model=SharedIdeaResponse)
+async def get_shared_idea(share_id: str):
+    idea = await db.ideas.find_one(
+        {"share_id": share_id, "is_public": True},
+        {"_id": 0}
+    )
+    
+    if not idea:
+        raise HTTPException(status_code=404, detail="Shared idea not found")
+    
+    return SharedIdeaResponse(
+        id=idea["id"],
+        title=idea["title"],
+        content=idea.get("content"),
+        idea_type=idea["idea_type"],
+        media_url=idea.get("media_url"),
+        author_name=idea.get("author_name", "Anonymous"),
+        created_at=idea["created_at"]
+    )
+
+# Public endpoint - browse all shared ideas (no auth required)
+@api_router.get("/shared", response_model=List[SharedIdeaResponse])
+async def get_all_shared_ideas(limit: int = 50):
+    ideas = await db.ideas.find(
+        {"is_public": True},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(limit).to_list(limit)
+    
+    return [
+        SharedIdeaResponse(
+            id=idea["id"],
+            title=idea["title"],
+            content=idea.get("content"),
+            idea_type=idea["idea_type"],
+            media_url=idea.get("media_url"),
+            author_name=idea.get("author_name", "Anonymous"),
+            created_at=idea["created_at"]
+        )
+        for idea in ideas
+    ]
+
 # Include the router in the main app
 app.include_router(api_router)
 

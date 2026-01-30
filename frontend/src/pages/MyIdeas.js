@@ -64,6 +64,11 @@ export default function MyIdeas() {
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
         }
+        
+        // Cleanup: re-enable scroll when leaving draw mode
+        return () => {
+            document.body.style.overflow = '';
+        };
     }, [activeMode, view, theme]);
 
     const fetchIdeas = async () => {

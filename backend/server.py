@@ -110,8 +110,21 @@ class IdeaResponse(BaseModel):
     idea_type: str
     media_url: Optional[str] = None
     tags: List[str] = []
+    is_public: bool = False
+    share_id: Optional[str] = None
+    author_name: Optional[str] = None
     created_at: str
     updated_at: str
+
+class SharedIdeaResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    title: str
+    content: Optional[str] = None
+    idea_type: str
+    media_url: Optional[str] = None
+    author_name: str
+    created_at: str
 
 # ============== Auth Helpers ==============
 

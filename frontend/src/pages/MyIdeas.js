@@ -432,8 +432,8 @@ export default function MyIdeas() {
                                         ref={canvasRef}
                                         width={900}
                                         height={500}
-                                        className="w-full touch-none cursor-crosshair"
-                                        style={{ aspectRatio: '9/5' }}
+                                        className="w-full cursor-crosshair"
+                                        style={{ aspectRatio: '9/5', touchAction: 'none' }}
                                         onMouseDown={startDrawing}
                                         onMouseMove={draw}
                                         onMouseUp={stopDrawing}
